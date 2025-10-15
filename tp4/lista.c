@@ -63,41 +63,63 @@ int lista_insere_fim (struct lista *lista, int chave)
 {
     struct nodo *novo_nodo, *aux;
     if (!(novo_nodo = malloc(sizeof(struct nodo))))
-        return 0;
+	{
+    	return 0;
+	}
 
-    aux = lista->ini;
-    while (!(aux->prox == NULL))
-    {
-        aux = aux->prox;
-    }
+	if(!lista_vazia(lista)) /*tem jeito mais elegante de se implementar? */
+	{
+	    aux = lista->ini;
+		while (!(aux->prox == NULL))
+			{
+		        aux = aux->prox;
+		    }
+    	aux->prox = novo_nodo;
+	}
+	else
+		lista->ini = novo_nodo;
 
-    aux->prox = novo_nodo;
     novo_nodo->chave = chave;
     novo_nodo->prox = NULL;
     lista->tamanho++;
     return 1;
 }
-/*
-int lista_insere_ordenado (struct lista *lista, int chave)
+
+int lista_insere_ordenado (struct lista *lista, int chave) /*decrescente ou crescente ou ambos? */
 {
  	struct nodo *novo_nodo;
-if (!(novo_nodo = malloc(sizeof(struct nodo))))
-return 0;
+	struct nodo *aux;
+	if (!(novo_nodo = malloc(sizeof(struct nodo))))
+		return 0;
 
-lista->ptr = lista->ini;
-while (!(lista->ptr->prox == NULL))
-{
-lista->ptr = lista->ptr->prox;
+	if (lista_vazia(lista)) /* jeito mais elegante? */
+	{
+		lista->ini = novo_nodo;
+		novo_nodo->prox = NULL;
+	}
+
+	else if (lista->ini->chave > chave) /* o que é mais elegante, else if ou double return + definir aux no inicio
+ou usar lista->ini?*/
+	{
+		novo_nodo->prox = lista->ini;
+		lista->ini = novo_nodo;
+	}
+	else
+	{
+		aux = lista->ini;
+		while ((aux->prox != NULL) && (aux->prox->chave < chave))
+		{
+			aux = aux->prox;
+		}
+		novo_nodo->prox = aux->prox;
+		aux->prox = novo_nodo;
+	}
+	novo_nodo->chave = chave;
+	lista->tamanho++;
+
+	return 1;
 }
 
-lista->ptr->prox = novo_nodo;
-novo_nodo->chave = lista->ptr->chave;
-novo_nodo->prox = NULL;
-lista->tamanho =+ 1;
-return 1;
-
-}
-*/
 int lista_remove_inicio (struct lista *lista, int *chave)
 {
   struct nodo *aux;
@@ -118,24 +140,59 @@ int lista_remove_fim (struct lista *lista, int *chave)
 {
     struct nodo *aux;
     if (lista_vazia(lista))
+	{
         return 0;
+	}
 
     aux = lista->ini;
-    if (!(aux->prox = NULL))
-         while (!(aux->prox->prox == NULL))
+    if ((aux->prox == NULL))
+	{
+		*chave = aux->chave;
+		free(lista->ini);
+		lista->ini = NULL;
+	}
+	else
+	{
+        while (!(aux->prox->prox == NULL))
         {
             aux = aux->prox;
         }
-
-	*chave = aux->chave;
-    free(aux);
+		*chave = aux->prox->chave;
+    	free(aux->prox);
+		aux->prox = NULL;
+	}
     lista->tamanho--;
 	return 1;
 }
-/*
-int lista_remove_ordenado (struct lista *lista, int chave){
+
+int lista_remove_ordenado (struct lista *lista, int chave)
+{
+	struct nodo *aux;
+	struct nodo *deleta_nodo;
+	if (lista_vazia(lista))
+    {
+	    return 0;
+	}
+	aux = lista->ini;
+	if (aux->prox == NULL)
+	{
+		free(aux);
+		lista->ini = NULL;
+	}
+	else
+	{
+		while (aux->prox->chave != chave)
+		{
+			aux = aux->prox;
+		}
+		deleta_nodo = aux->prox;
+		aux->prox = aux->prox->prox;
+        free(deleta_nodo);
+	}
+	lista->tamanho--;
+	return 1;
 }
-*/
+
 int lista_vazia (struct lista *lista)
 {
     if(lista->ini == NULL)
@@ -157,10 +214,10 @@ void lista_inicia_iterador (struct lista *lista)
 
 int lista_incrementa_iterador (struct lista *lista, int *chave)
 {
-    lista->ptr = lista->ptr->prox;
     if (lista->ptr == NULL)
         return 0;
 
     *chave = lista->ptr->chave;
+    lista->ptr = lista->ptr->prox;
     return 1;
 }

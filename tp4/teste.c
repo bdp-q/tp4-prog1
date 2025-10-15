@@ -129,14 +129,43 @@ void lista_inicia_iterador (struct lista *lista)
 
 int lista_incrementa_iterador (struct lista *lista, int *chave)
 {
-	lista->ptr = lista->ptr->prox;
 	if (lista->ptr == NULL)
 		return 0;
 
 	*chave = lista->ptr->chave;
+	lista->ptr = lista->ptr->prox;
 	return 1;
 }
+void imprimir_lista (struct lista *l){
+    int chave;
 
+    if (lista_vazia (l)){
+        printf ("lista vazia\n");
+        return;
+    }
+
+    lista_inicia_iterador (l);
+    lista_incrementa_iterador (l, &chave);
+    printf ("%d", chave);
+    while (lista_incrementa_iterador (l, &chave))
+        printf (" %d", chave);
+    printf ("\n");
+}
+
+
+void teste_insere_inicio (struct lista *l, int limite)
+{
+    int i;
+
+    for (i=1; i <= limite; i++)
+    {
+        if (! lista_insere_inicio (l, i + 10)){
+            printf ("Lista cheia, nao inseriu.\n");
+            return;
+        }
+        imprimir_lista (l);
+    }
+}
 
 int main()
 {
@@ -144,14 +173,8 @@ int main()
 	int chave = 10;
 
 	l = lista_cria();
-	lista_insere_inicio(l,chave);
-	lista_insere_inicio(l,chave);
-	lista_insere_fim(l,chave);
-	lista_remove_inicio(l,&chave);
-	lista_remove_inicio(l,&chave);
-	lista_remove_inicio(l,&chave);
-	if (lista_vazia(l))
-		printf("Breno Padilha Deus Gamer");
+	teste_insere_inicio(l,5);
+
 	lista_destroi(&l);
 
 }
